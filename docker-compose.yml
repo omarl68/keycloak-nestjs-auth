@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.5
+    container_name: keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8083:8080"
+    command:
+      - start-dev
+    volumes:
+      - ./keycloak-data:/opt/keycloak/data
+      - ./keycloak-themes/purple-theme:/opt/keycloak/themes/purple-theme
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', 'http://localhost:8080/realms/master']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
